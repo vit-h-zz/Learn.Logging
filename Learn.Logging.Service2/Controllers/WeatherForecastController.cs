@@ -28,6 +28,12 @@ namespace Learn.Logging.Service2.Controllers
         [HttpGet("fetch")]
         public async Task<IEnumerable<WeatherForecast>> FetchFromRemote()
         {
+            // 1. Structured logging
+            var user = new User {Id = 123, Name = "James Bond", Prefix = "Bond"};
+            _logger.LogInformation("User {@User} requested weather forecast", user);
+            _logger.LogInformation("User {User} without @", user);
+
+            // 2. Enrich nested logs with scope data
             var dictionary = new Dictionary<string, dynamic>
             {
                 {"City", "London"},
@@ -36,13 +42,13 @@ namespace Learn.Logging.Service2.Controllers
 
             using (_logger.BeginScope(dictionary))
             {
-                _logger.LogInformation("User {@User} requested weather forecast",
-                    new User { Id = 123, Name = "James Bond", Prefix = "Bond" });
-
-                _logger.LogDebug("Debug log");
+                _logger.LogInformation("User {@User} requested weather forecast", user);
 
                 var httpClient = new HttpClient { BaseAddress = new Uri("https://localhost:5003") };
                 var forecast = await httpClient.GetFromJsonAsync<IEnumerable<WeatherForecast>>("/weatherforecast");
+
+                //call more to see the APM change
+                //forecast = await httpClient.GetFromJsonAsync<IEnumerable<WeatherForecast>>("/weatherforecast");
 
                 return forecast;
             }
@@ -61,7 +67,6 @@ namespace Learn.Logging.Service2.Controllers
             {
                 var user = new User { Id = 124, Name = "Jackie Chan", Prefix = "Mr" };
                 _logger.LogInformation("User {@User} requested weather forecast", user);
-                _logger.LogWarning("Request took more than expected for user {@User}", user);
 
                 var rng = new Random();
                 return Enumerable.Range(1, 5).Select(index => new WeatherForecast

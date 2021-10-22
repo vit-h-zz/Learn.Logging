@@ -18,6 +18,8 @@ namespace Learn.Logging.Service3
               .MinimumLevel.Information()
               .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
               .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+              .Enrich.WithProperty("Replica", 5)
+              .Enrich.WithProperty("App", nameof(Service3))
               .Enrich.FromLogContext()
               .WriteTo.Console()
 
