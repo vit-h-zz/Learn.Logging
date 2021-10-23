@@ -13,7 +13,7 @@ namespace Learn.Logging.Service2.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries =
+        private static readonly string[] WeatherOptions =
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
@@ -31,7 +31,9 @@ namespace Learn.Logging.Service2.Controllers
             // 1. Structured logging
             var user = new User {Id = 123, Name = "James Bond", Prefix = "Bond"};
             _logger.LogInformation("User {@User} requested weather forecast", user);
-            _logger.LogInformation("User {User} without @", user);
+            //_logger.LogInformation("User {User} without @", user);
+            //_logger.LogInformation("User {@WeatherOptions}", (object)WeatherOptions);
+            //_logger.LogInformation("User {WeatherOptions} without @", (object)WeatherOptions);
 
             // 2. Enrich nested logs with scope data
             var dictionary = new Dictionary<string, dynamic>
@@ -42,13 +44,15 @@ namespace Learn.Logging.Service2.Controllers
 
             using (_logger.BeginScope(dictionary))
             {
-                _logger.LogInformation("User {@User} requested weather forecast", user);
+                _logger.LogInformation("User {@User} requested weather forecast within scope", user);
 
                 var httpClient = new HttpClient { BaseAddress = new Uri("https://localhost:5003") };
                 var forecast = await httpClient.GetFromJsonAsync<IEnumerable<WeatherForecast>>("/weatherforecast");
 
-                //call more to see the APM change
-                //forecast = await httpClient.GetFromJsonAsync<IEnumerable<WeatherForecast>>("/weatherforecast");
+                //// call more to see the APM change
+                // forecast = await httpClient.GetFromJsonAsync<IEnumerable<WeatherForecast>>("/weatherforecast")
+                //// test custom extension
+                    //.WithLogging(_logger, "Calling other service", new { User = user });
 
                 return forecast;
             }
@@ -73,7 +77,7 @@ namespace Learn.Logging.Service2.Controllers
                     {
                         Date = DateTime.Now.AddDays(index),
                         TemperatureC = rng.Next(-20, 55),
-                        Summary = Summaries[rng.Next(Summaries.Length)]
+                        Summary = WeatherOptions[rng.Next(WeatherOptions.Length)]
                     })
                     .ToArray();
             }

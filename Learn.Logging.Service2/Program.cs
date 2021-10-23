@@ -19,8 +19,10 @@ namespace Learn.Logging.Service2
               .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
               .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
               //.MinimumLevel.Override("Learn.Logging.Service2.Controllers", LogEventLevel.Debug)
+
               .Enrich.WithProperty("Replica", 11)
               .Enrich.WithProperty("App", nameof(Service2))
+
               .Enrich.FromLogContext()
               .WriteTo.Console()
               .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
